@@ -1,0 +1,517 @@
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #0f5132;
+  color: #fff;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* Header */
+.header {
+  background-color: #134e4a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.round-counter {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Tabs */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  padding: 8px 0;
+  background-color: #134e4a;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tab-btn.active {
+  background-color: #0d9488;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Cards */
+.player-card {
+  background-color: #15803d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.player-card.dealer {
+  background-color: #374151;
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.player-name {
+  display: flex;
+  align-items: center;
+}
+
+.player-name h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dealer-badge {
+  background-color: #ca8a04;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+}
+
+.player-points {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.bet-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.bet-input {
+  flex: 1;
+  padding: 8px;
+  background-color: #166534;
+  border: 1px solid #15803d;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.bet-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.current-bet {
+  background-color: #166534;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.player-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.bet-btn {
+  background-color: #ca8a04;
+  color: #fff;
+}
+
+.bet-btn:hover {
+  background-color: #a16207;
+}
+
+.win-btn {
+  background-color: #15803d;
+  color: #fff;
+}
+
+.win-btn:hover {
+  background-color: #166534;
+}
+
+.lost-btn {
+  background-color: #b91c1c;
+  color: #fff;
+}
+
+.lost-btn:hover {
+  background-color: #991b1b;
+}
+
+.remove-btn {
+  background-color: #b91c1c;
+  color: #fff;
+  padding: 4px 8px;
+}
+
+.remove-btn:hover {
+  background-color: #991b1b;
+}
+
+.dealer-win-btn {
+  flex: 1;
+  background-color: #15803d;
+  color: #fff;
+}
+
+.dealer-win-btn:hover {
+  background-color: #166534;
+}
+
+.reset-btn {
+  flex: 1;
+  background-color: #b91c1c;
+  color: #fff;
+}
+
+.reset-btn:hover {
+  background-color: #991b1b;
+}
+
+.add-player-btn {
+  width: 100%;
+  background-color: #0d9488;
+  color: #fff;
+  margin-top: 16px;
+}
+
+.add-player-btn:hover {
+  background-color: #0f766e;
+}
+
+.create-loan-btn {
+  width: 100%;
+  background-color: #0d9488;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.game-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* Loan Manager */
+.loan-manager {
+  background-color: #134e4a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.loan-manager h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.loan-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.loan-tab-btn {
+  padding: 8px 0;
+  background-color: #134e4a;
+  border: 1px solid #0f766e;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.loan-tab-btn.active {
+  background-color: #0d9488;
+}
+
+.loan-tab-content {
+  display: none;
+}
+
+.loan-tab-content.active {
+  display: block;
+}
+
+.loan-card {
+  background-color: #15803d;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.loan-card.overdue {
+  background-color: #b91c1c;
+}
+
+.loan-card.paid {
+  background-color: #4b5563;
+  opacity: 0.8;
+}
+
+.loan-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.loan-parties {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.loan-amount {
+  font-size: 14px;
+}
+
+.loan-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.loan-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.repay-amount {
+  font-size: 14px;
+}
+
+.repay-btn {
+  background-color: #15803d;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.paid-badge {
+  background-color: #15803d;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.overdue-badge {
+  background-color: #b91c1c;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+
+.no-loans-message, .no-history-message {
+  text-align: center;
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* History */
+.history-card {
+  background-color: #134e4a;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.history-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.history-item {
+  background-color: #15803d;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.winner {
+  font-weight: 600;
+}
+
+.history-time {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.history-amount {
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.history-losers {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.modal-content {
+  background-color: #134e4a;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #0f766e;
+  background-color: #0d9488;
+  color: #fff;
+}
+
+.form-group select option {
+  background-color: #134e4a;
+}
+
+.loan-summary {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #134e4a;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+/* Responsive */
+@media (min-width: 640px) {
+  .container {
+    padding: 24px;
+  }
+  
+  .header {
+    padding: 20px;
+  }
+  
+  .header h1 {
+    font-size: 28px;
+  }
+}
