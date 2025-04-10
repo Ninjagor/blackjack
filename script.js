@@ -20,13 +20,6 @@ let dealer = {
 let gameHistory = [];
 let roundCounter = 0;
 
-function resetGame() {
-  localStorage.removeItem('blackjack-players');
-  localStorage.removeItem('blackjack-dealer');
-  localStorage.removeItem('blackjack-history');
-  localStorage.removeItem('blackjack-round');
-}
-
 // Initialize the game
 function initGame() {
   // Load data from localStorage
@@ -60,6 +53,76 @@ function updateRoundCounter() {
   roundCountEl.textContent = roundCounter;
 }
 
+// Create player card element
+function createPlayerCard(player) {
+  const playerCard = document.createElement('div');
+  playerCard.className = 'player-card';
+  playerCard.dataset.id = player.id;
+
+  playerCard.innerHTML = `
+    <div class="player-info">
+      <div class="player-name">
+        <h3>${player.name}</h3>
+      </div>
+      <div class="player-points">${player.points} pts</div>
+    </div>
+    <div class="bet-controls">
+      <input type="number" class="bet-input" placeholder="Bet amount" min="0" max="${player.points}" value="${player.currentBet}">
+      <button class="btn btn-sm bet-btn">Bet</button>
+    </div>
+    ${player.currentBet > 0 ? `
+      <div class="current-bet">
+        Current bet: <span class="bet-amount">${player.currentBet}</span> points
+      </div>
+      <div class="player-actions">
+        <button class="btn btn-sm win-btn">Win</button>
+        <button class="btn btn-sm lost-btn">Lost</button>
+        <button class="btn btn-sm remove-btn">×</button>
+      </div>
+    ` : `
+      <div class="player-actions" style="justify-content: flex-end;">
+        <button class="btn btn-sm remove-btn">×</button>
+      </div>
+    `}
+  `;
+
+  // Add event listeners
+  const betInput = playerCard.querySelector('.bet-input');
+  const betBtn = playerCard.querySelector('.bet-btn');
+  const winBtn = playerCard.querySelector('.win-btn');
+  const lostBtn = playerCard.querySelector('.lost-btn');
+  const removeBtn = playerCard.querySelector('.remove-btn');
+
+  betBtn.addEventListener('click', () => {
+    const bet = parseInt(betInput.value) || 0;
+    if (bet > player.points) {
+      showToast('Cannot bet more than available points');
+      return;
+    }
+    updatePlayerBet(player.id, bet);
+  });
+
+  if (winBtn) {
+    winBtn.addEventListener('click', () => {
+      declareWinner(player.id);
+    });
+  }
+
+  if (lostBtn) {
+    lostBtn.addEventListener('click', () => {
+      declarePlayerLost(player.id);
+    });
+  }
+
+  removeBtn.addEventListener('click', () => {
+    if (confirm(`Are you sure you want to remove ${player.name} from the game?`)) {
+      removePlayer(player.id);
+    }
+  });
+
+  return playerCard;
+}
+
 // Render players
 function renderPlayers() {
   // Update dealer card
@@ -75,74 +138,51 @@ function renderPlayers() {
     return;
   }
 
-  players.forEach(player => {
-    const playerCard = document.createElement('div');
-    playerCard.className = 'player-card';
-    playerCard.dataset.id = player.id;
-
-    playerCard.innerHTML = `
-      <div class="player-info">
-        <div class="player-name">
-          <h3>${player.name}</h3>
-        </div>
-        <div class="player-points">${player.points} pts</div>
-      </div>
-      <div class="bet-controls">
-        <input type="number" class="bet-input" placeholder="Bet amount" min="0" max="${player.points}" value="${player.currentBet}">
-        <button class="btn btn-sm bet-btn">Bet</button>
-      </div>
-      ${player.currentBet > 0 ? `
-        <div class="current-bet">
-          Current bet: <span class="bet-amount">${player.currentBet}</span> points
-        </div>
-        <div class="player-actions">
-          <button class="btn btn-sm win-btn">Win</button>
-          <button class="btn btn-sm lost-btn">Lost</button>
-          <button class="btn btn-sm remove-btn">×</button>
-        </div>
-      ` : `
-        <div class="player-actions" style="justify-content: flex-end;">
-          <button class="btn btn-sm remove-btn">×</button>
-        </div>
-      `}
-    `;
-
-    playersContainer.appendChild(playerCard);
-
-    // Add event listeners
-    const betInput = playerCard.querySelector('.bet-input');
-    const betBtn = playerCard.querySelector('.bet-btn');
-    const winBtn = playerCard.querySelector('.win-btn');
-    const lostBtn = playerCard.querySelector('.lost-btn');
-    const removeBtn = playerCard.querySelector('.remove-btn');
-
-    betBtn.addEventListener('click', () => {
-      const bet = parseInt(betInput.value) || 0;
-      if (bet > player.points) {
-        showToast('Cannot bet more than available points');
-        return;
-      }
-      updatePlayerBet(player.id, bet);
-    });
-
-    if (winBtn) {
-      winBtn.addEventListener('click', () => {
-        declareWinner(player.id);
-      });
+  // Save current bet input values
+  const currentBetInputs = {};
+  document.querySelectorAll('.player-card').forEach(card => {
+    const playerId = card.dataset.id;
+    const betInput = card.querySelector('.bet-input');
+    if (betInput) {
+      currentBetInputs[playerId] = betInput.value;
     }
-
-    if (lostBtn) {
-      lostBtn.addEventListener('click', () => {
-        declarePlayerLost(player.id);
-      });
-    }
-
-    removeBtn.addEventListener('click', () => {
-      if (confirm(`Are you sure you want to remove ${player.name} from the game?`)) {
-        removePlayer(player.id);
-      }
-    });
   });
+
+  players.forEach(player => {
+    const playerCard = createPlayerCard(player);
+    playersContainer.appendChild(playerCard);
+    
+    // Restore bet input value if it exists
+    if (currentBetInputs[player.id]) {
+      const betInput = playerCard.querySelector('.bet-input');
+      betInput.value = currentBetInputs[player.id];
+    }
+  });
+}
+
+// Update a specific player card
+function updatePlayerCard(playerId) {
+  const player = players.find(p => p.id === playerId);
+  if (!player) return;
+  
+  const existingCard = document.querySelector(`.player-card[data-id="${playerId}"]`);
+  if (!existingCard) return;
+  
+  // Save current bet input value
+  const betInput = existingCard.querySelector('.bet-input');
+  const currentBetValue = betInput ? betInput.value : player.currentBet;
+  
+  // Create new card
+  const newCard = createPlayerCard(player);
+  
+  // Restore bet input value
+  const newBetInput = newCard.querySelector('.bet-input');
+  if (newBetInput) {
+    newBetInput.value = currentBetValue;
+  }
+  
+  // Replace old card with new one
+  existingCard.replaceWith(newCard);
 }
 
 // Render loans
@@ -306,15 +346,17 @@ function addPlayer(name, points) {
 
 // Update player bet
 function updatePlayerBet(playerId, bet) {
+  // Update player data
   players = players.map(player => 
     player.id === playerId 
       ? { ...player, currentBet: bet } 
       : player
   );
   
-  saveGameState();
-  renderPlayers();
+  // Update only the specific player's card
+  updatePlayerCard(playerId);
   
+  saveGameState();
   showToast(`Bet updated to ${bet} points`);
 }
 
@@ -444,6 +486,16 @@ function declarePlayerLost(playerId) {
 
 // Reset game (bets only)
 function resetGame() {
+  // Save current bet input values
+  const currentBetInputs = {};
+  document.querySelectorAll('.player-card').forEach(card => {
+    const playerId = card.dataset.id;
+    const betInput = card.querySelector('.bet-input');
+    if (betInput) {
+      currentBetInputs[playerId] = betInput.value;
+    }
+  });
+  
   players = players.map(player => ({ ...player, currentBet: 0 }));
   
   saveGameState();
@@ -871,9 +923,9 @@ function updateLoanSummary() {
 }
 
 // Add event listener for the Next Round button
-// document.querySelector('.next-round-btn').addEventListener('click', () => {
-//   incrementRound();
-// });
+document.querySelector('.next-round-btn').addEventListener('click', () => {
+  incrementRound();
+});
 
 // Game Controls
 document.querySelector('.dealer-win-btn').addEventListener('click', () => {
@@ -883,6 +935,9 @@ document.querySelector('.dealer-win-btn').addEventListener('click', () => {
 document.querySelector('.reset-btn').addEventListener('click', () => {
   resetGame();
 });
+
+// Initialize the game
+// initGame();
 
 document.getElementById('increment-round').addEventListener('click', () => {
   incrementRound();
