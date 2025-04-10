@@ -20,6 +20,13 @@ let dealer = {
 let gameHistory = [];
 let roundCounter = 0;
 
+function resetGame() {
+  localStorage.removeItem('blackjack-players');
+  localStorage.removeItem('blackjack-dealer');
+  localStorage.removeItem('blackjack-history');
+  localStorage.removeItem('blackjack-round');
+}
+
 // Initialize the game
 function initGame() {
   // Load data from localStorage
@@ -479,7 +486,8 @@ function createLoan(from, to, amount, interest, dueInRounds) {
     dueRound: roundCounter + dueInRounds,
     from,
     to,
-    paid: false
+    paid: false,
+    autoPaymentAttempted: false
   };
   
   // Update lender's points
@@ -556,12 +564,21 @@ function repayLoan(loanId, fromId, toId, amount) {
   if (fromId === 'dealer') {
     dealer = {
       ...dealer,
-      points: dealer.points - amount
+      points: dealer.points - amount,
+      loans: dealer.loans.map(loan => 
+        loan.id === loanId ? { ...loan, paid: true } : loan
+      )
     };
   } else {
     players = players.map(player => 
       player.id === fromId 
-        ? { ...player, points: player.points - amount } 
+        ? { 
+            ...player, 
+            points: player.points - amount,
+            loans: player.loans.map(loan => 
+              loan.id === loanId ? { ...loan, paid: true } : loan
+            )
+          } 
         : player
     );
   }
@@ -637,34 +654,91 @@ function incrementRound() {
 // Check for loans that need to be auto-repaid
 function checkLoansForAutoRepayment() {
   const allPlayers = [dealer, ...players];
+  let autoRepaidLoans = 0;
   
   // Get all active loans
-  const allLoans = allPlayers.flatMap(player => 
-    player.loans.filter(loan => !loan.paid)
-  );
+  const allLoans = [];
+  
+  // Collect all loans from dealer
+  dealer.loans.forEach(loan => {
+    if (!loan.paid) {
+      allLoans.push({...loan, playerType: 'dealer'});
+    }
+  });
+  
+  // Collect all loans from players
+  players.forEach(player => {
+    player.loans.forEach(loan => {
+      if (!loan.paid) {
+        allLoans.push({...loan, playerType: 'player', playerId: player.id});
+      }
+    });
+  });
   
   // Check each loan
   allLoans.forEach(loan => {
-    // Skip if loan is not due yet
-    if (loan.dueRound > roundCounter) return;
-    
-    // Find borrower
-    const borrower = loan.to === 'dealer' 
-      ? dealer 
-      : players.find(p => p.id === loan.to);
-    
-    if (!borrower) return;
-    
-    // Calculate repayment amount
-    const repayAmount = calculateTotalWithInterest(loan.amount, loan.interest);
-    
-    // Check if borrower has enough points
-    if (borrower.points >= repayAmount) {
-      // Auto-repay the loan
-      repayLoan(loan.id, loan.to, loan.from, repayAmount);
-      showToast(`Loan automatically repaid by ${borrower.name}`);
+    // Only process loans that are due exactly in this round and haven't been auto-payment attempted
+    if (loan.dueRound === roundCounter && !loan.autoPaymentAttempted) {
+      // Find borrower
+      const borrower = loan.to === 'dealer' 
+        ? dealer 
+        : players.find(p => p.id === loan.to);
+      
+      if (!borrower) return;
+      
+      // Calculate repayment amount
+      const repayAmount = calculateTotalWithInterest(loan.amount, loan.interest);
+      
+      // Check if borrower has enough points
+      if (borrower.points >= repayAmount) {
+        // Auto-repay the loan
+        repayLoan(loan.id, loan.to, loan.from, repayAmount);
+        autoRepaidLoans++;
+      } else {
+        // Mark the loan as auto-payment attempted
+        if (loan.to === 'dealer') {
+          dealer.loans = dealer.loans.map(l => 
+            l.id === loan.id ? { ...l, autoPaymentAttempted: true } : l
+          );
+        } else {
+          players = players.map(player => 
+            player.id === loan.to 
+              ? { 
+                  ...player, 
+                  loans: player.loans.map(l => 
+                    l.id === loan.id ? { ...l, autoPaymentAttempted: true } : l
+                  )
+                } 
+              : player
+          );
+        }
+        
+        // Also mark the loan as auto-payment attempted in the lender's records
+        if (loan.from === 'dealer') {
+          dealer.loans = dealer.loans.map(l => 
+            l.id === loan.id ? { ...l, autoPaymentAttempted: true } : l
+          );
+        } else {
+          players = players.map(player => 
+            player.id === loan.from 
+              ? { 
+                  ...player, 
+                  loans: player.loans.map(l => 
+                    l.id === loan.id ? { ...l, autoPaymentAttempted: true } : l
+                  )
+                } 
+              : player
+          );
+        }
+      }
     }
   });
+  
+  if (autoRepaidLoans > 0) {
+    showToast(`${autoRepaidLoans} loan(s) automatically repaid`);
+  }
+  
+  saveGameState();
 }
 
 // Tab switching
@@ -796,8 +870,26 @@ function updateLoanSummary() {
   }
 }
 
+// Add event listener for the Next Round button
+// document.querySelector('.next-round-btn').addEventListener('click', () => {
+//   incrementRound();
+// });
+
+// Game Controls
+document.querySelector('.dealer-win-btn').addEventListener('click', () => {
+  declareDealerWinner();
+});
+
+document.querySelector('.reset-btn').addEventListener('click', () => {
+  resetGame();
+});
+
 document.getElementById('increment-round').addEventListener('click', () => {
   incrementRound();
+});
+
+document.getElementById('reset-stats').addEventListener('click', () => {
+  resetGame();
 });
 
 // Initialize the game
